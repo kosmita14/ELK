@@ -1,0 +1,45 @@
+input {
+  udp { 
+    port => 5001
+  }
+}
+
+filter {
+  grok{
+    match => { "message" => "(?<logtimestamp>[^|]*)\|(?<level>[^|]*)\|(?<session_id>[^|]*)\|(?<ip>[^|]*)\|(?<hash>[^|]*)\|(?<user_id>[^|]*)\| \[(?<service_path>[^\]]*)\] %{GREEDYDATA:message_json}"}
+  }
+  
+  json {
+    source => "message_json"
+    target => "message_json"
+  }
+  
+  date {
+    match => [ "[message_json][sendTS]", "YYYY-MM-dd HH:mm:ss SSSS", "YYYY-MM-dd HH:mm:ss SSS"]
+    timezone => "Europe/Warsaw"
+  }
+  
+  mutate {
+    rename => { "[message_json][interval]" => "interval" }
+  }
+  
+  prune {
+    whitelist_names => [ "timestamp", "user_id", "operationName", "interval", "hash" ]
+  }
+  
+}
+
+
+output {
+  if "_grokparsefailure" not in [tags] and "_jsonparsefailure" not in [tags] {
+    elasticsearch {
+      hosts => [ "localhost:9200" ]
+      index => "udp-%{+YYYY.MM.dd}"
+    }
+  }else{
+    file{
+      path => "/home/pi/Dokumenty/logi/udp_parse_error.log"
+    }
+  }
+  stdout { codec => rubydebug }
+}

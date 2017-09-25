@@ -1,0 +1,45 @@
+{
+    "order": 0,
+    "template": "ininp_*",
+    "version": 50004,
+    "settings": {
+        "number_of_shards": 1
+    },
+    "mappings": {
+        "_default_": {
+            "numeric_detection": true,
+            "properties": {
+                "@timestamp": {
+                    "type": "date"
+                },
+                "time": {
+                    "type": "date"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "threadid": {
+                    "type": "long"
+                },
+                "logger": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "rebtime": {
+                    "type": "integer"
+                },
+                "queue": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "statement": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

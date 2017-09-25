@@ -1,0 +1,53 @@
+input {
+  stdin { }
+  
+#  beats {
+#    port => 5045
+#  }    
+}
+
+filter {
+  grok{
+    match => [
+      "message", '%{NOTSPACE:client_ip}[ ]+\[(?<logtimestamp>[^\]]+)\] \"%{NOTSPACE:req_method} %{NOTSPACE:url} %{NOTSPACE:protocol}\" %{NOTSPACE:status_code} %{NOTSPACE:size} "%{NOTSPACE:http_referer}" \"(?<user_agent>[^\"]+)\" \"(?<http_cookie>[^\"]+)\" "%{NOTSPACE:server_ip}" "%{NOTSPACE:interval}" "%{NOTSPACE:server_status}" "%{NOTSPACE:serial_no}" "%{NOTSPACE:conn_no}" "%{NOTSPACE:req_uuid}"',
+      "message", '%{NOTSPACE:client_ip}[ ]+\[(?<logtimestamp>[^\]]+)\] \"%{NOTSPACE:req_method} %{NOTSPACE:url} %{NOTSPACE:protocol}\" %{NOTSPACE:status_code} %{NOTSPACE:size} "%{NOTSPACE:http_referer}" \"(?<user_agent>[^\"]+)\" \"(?<http_cookie>[^\"]+)\" \"(?<server_ip_multi>[^\"]+)\" \"(?<interval_multi>[^\"]+)\" \"(?<server_status_multi>[^\"]+)\" "%{NOTSPACE:serial_no}" "%{NOTSPACE:conn_no}" "%{NOTSPACE:req_uuid}"'
+    ]
+    remove_field => [ "message" ]
+  }
+  
+  if [interval] {
+    mutate {
+      convert => { "interval" => "float" }
+    }
+  }
+  
+  mutate {
+    convert => { "size" => "integer" }
+  }
+  
+  geoip {
+    source => "client_ip"
+  }
+
+  kv {
+    field_split => "; "
+    include_keys => [ "RONLINE-DMZ", "XSRF-TOKEN", "JSESSIONID", "language", "NIB-LAN" ]
+    source => "http_cookie"
+    target => "http_cookie"
+  }
+  
+  date {
+     match => [ "[logtimestamp]", "dd/MMM/yyyy:HH:mm:ss Z"]
+     timezone => "Europe/Warsaw"
+     remove_field => [ "logtimestamp" ]
+  }
+}
+
+output {
+#    elasticsearch {
+#      hosts => [ "localhost:9200" ]
+#      index => "nginx-%{+YYYY.MM.dd}"
+#    }
+
+    stdout { codec => rubydebug }
+}

@@ -1,0 +1,77 @@
+{
+     "order" : 0,
+     "template" : "nib-*",
+     "version" : 50004,
+     "settings" : { 
+       "index" : {
+         "number_of_shards" : "2"
+       }     
+     },    
+     "mappings" : { 
+       "_default_" : {
+         "numeric_detection": true,
+         "properties" : {
+           "request" : {
+             "index" : "not_analyzed",
+             "type" : "string"
+           },
+           "agent" : {
+             "type" : "string"
+           },
+           "auth" : { 
+             "index" : "not_analyzed",
+             "type" : "string"
+           },
+           "ident" : {
+             "type" : "string"
+           },
+           "verb" : { 
+             "type" : "string"
+           },
+           "message" : {
+             "type" : "string"
+           },
+           "type" : {
+             "type" : "string"
+           },
+           "path" : {
+             "index" : "not_analyzed",
+             "type" : "string"
+           },
+           "referrer" : {
+             "index" : "not_analyzed",
+             "type" : "string"
+           },
+           "@timestamp" : {
+             "format" : "strict_date_optional_time||epoch_millis",
+             "type" : "date"
+           },
+           "bytes" : {
+             "type" : "long"
+           },
+           "response" : {
+             "type" : "string"
+           },
+           "clientip" : {
+             "index" : "not_analyzed",
+             "type" : "string"
+           },
+           "@version" : {
+             "type" : "string"
+           },
+           "host" : {
+             "index" : "not_analyzed",
+             "type" : "string"
+           },
+           "httpversion" : {
+             "type" : "string"
+           },
+           "timestamp" : {
+             "type" : "string"
+           } 
+         }
+       }
+     },
+     "aliases" : { }
+}
+

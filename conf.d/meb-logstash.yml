@@ -1,0 +1,36 @@
+input {
+  beats {
+    port => 5045
+  }
+}
+
+filter {
+
+  grok{
+    match => [
+       "message", "%{GREEDYDATA:logtimestamp} \[%{NOTSPACE:thread_name}\] %{NOTSPACE:log_level}[ \t]+%{NOTSPACE:class} - %{NOTSPACE:component_name} \| CorrId = %{NOTSPACE:corr_id} \| %{NOTSPACE:domain} \| %{NOTSPACE:operationName} \| SessionId = %{NOTSPACE:sessionId} \| ReqId = %{NOTSPACE:reqId} \| %{NOTSPACE:identifier} \| %{NOTSPACE:unid} \| (?<message_type>(Response|Request)) \| %{NUMBER:response_interval} ms[\s]*%{GREEDYDATA:message_body}",
+       "message", "%{GREEDYDATA:logtimestamp} \[%{NOTSPACE:thread_name}\] %{NOTSPACE:log_level}[ \t]+%{NOTSPACE:class} - %{NOTSPACE:component_name} \| CorrId = %{NOTSPACE:corr_id} \| %{NOTSPACE:domain} \| %{NOTSPACE:operationName} \| SessionId = %{NOTSPACE:sessionId} \| ReqId = %{NOTSPACE:reqId} \| %{NOTSPACE:identifier} \| %{NOTSPACE:unid} \| (?<message_type>(Response|Request))[\s]*%{GREEDYDATA:message_body}",
+       "message", "%{GREEDYDATA:logtimestamp} \[%{NOTSPACE:thread_name}\] %{NOTSPACE:log_level}[ \t]+%{NOTSPACE:class} - %{NOTSPACE:component_name} \| Ver = %{NOTSPACE:ver} \| CorrId = %{NOTSPACE:corr_id} \| URI = %{NOTSPACE:uri} \| Method = %{NOTSPACE:method} \| %{NOTSPACE:ip} \| (?<message_type>(Response|Request)) \| %{NUMBER:response_interval} ms[\s]*Response headers: \{(?<message_header>[^}]*)\}%{GREEDYDATA:message_body}",
+       "message", "%{GREEDYDATA:logtimestamp} \[%{NOTSPACE:thread_name}\] %{NOTSPACE:log_level}[ \t]+%{NOTSPACE:class} - %{NOTSPACE:component_name} \| Ver = %{NOTSPACE:ver} \| CorrId = %{NOTSPACE:corr_id} \| URI = %{NOTSPACE:uri} \| Method = %{NOTSPACE:method} \| %{NOTSPACE:ip} \| (?<message_type>(Response|Request)) \| %{NOTSPACE:http_status} \| %{NUMBER:response_interval} ms[\s]*Response headers: \{(?<message_header>[^}]*)\}%{GREEDYDATA:message_body}",
+       "message", "%{GREEDYDATA:logtimestamp} \[%{NOTSPACE:thread_name}\] %{NOTSPACE:log_level}[ \t]+%{NOTSPACE:class} - %{NOTSPACE:component_name} \| Ver = %{NOTSPACE:ver} \| CorrId = %{NOTSPACE:corr_id} \| URI = %{NOTSPACE:uri} \| Method = %{NOTSPACE:method} \| %{NOTSPACE:ip} \| (?<message_type>(Response|Request))[\s]*Request headers: \{(?<message_header>[^}]*)\}%{GREEDYDATA:message_body}",
+       "message", "%{GREEDYDATA:logtimestamp} \[%{NOTSPACE:thread_name}\] %{NOTSPACE:log_level}[ \t]+%{NOTSPACE:class} - %{NOTSPACE:component_name} \| Ver = %{NOTSPACE:ver} \| CorrId = %{NOTSPACE:corr_id} \| URI = %{NOTSPACE:uri} \| Method = %{NOTSPACE:method} \| %{NOTSPACE:ip} \| (?<message_type>(Response|Request|Error)) \| %{NOTSPACE:http_status}[\s]*%{GREEDYDATA:message_body}",
+       "message", "%{GREEDYDATA:logtimestamp} \[%{NOTSPACE:thread_name}\] %{NOTSPACE:log_level}[ \t]+%{NOTSPACE:class} - %{NOTSPACE:component_name} %{GREEDYDATA:text}"
+    ]
+
+    remove_field => [ "message" ]
+  }
+    
+  date {
+     match => [ "[logtimestamp]", "YYYY-MM-dd HH:mm:ss,SSS"]
+     timezone => "Europe/Warsaw"
+  }
+}
+
+output {
+    elasticsearch {
+      hosts => [ "localhost:9200" ]
+      index => "meb-%{+YYYY.MM.dd}"
+    }
+    stdout { codec => rubydebug }
+}
+

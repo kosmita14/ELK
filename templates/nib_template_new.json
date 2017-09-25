@@ -1,0 +1,99 @@
+{
+     "order" : 0,
+     "template" : "nib-*",
+     "version" : 50007,
+     "settings" : {
+       "index" : {
+         "number_of_shards" : "10"
+       }
+     },
+     "mappings" : {
+       "_default_" : {
+         "numeric_detection": true,
+         "properties" : {
+           "host" : {
+             "type" : "keyword"
+           },
+           "session_id" : {
+             "type" : "keyword"
+           },
+           "user_id" : {
+             "type" : "keyword"
+           },
+           "message_json.logReason" : {
+             "type" : "keyword"
+           },
+           "message_json.operationName" : {
+             "type" : "keyword"
+           },
+           "message_json.applicationId" : {
+             "type" : "keyword"
+           },
+           "message_json.referenceId" : {
+             "type" : "keyword"
+           },
+           "message_json.relatedSession" : {
+             "type" : "keyword"
+           },
+           "level" : {
+             "type" : "keyword"
+           },
+           "session_id" : {
+             "type" : "keyword"
+           },
+           "service_path" : {
+             "type" : "keyword"
+           },
+           "hash" : {
+             "type" : "keyword"
+           },
+           "message_json.metaAttributes.DOMAIN" : {
+             "type" : "keyword"
+           },
+           "message_json.metaAttributes.DST" : {
+             "type" : "keyword"
+           },
+           "message_json.metaAttributes.MID" : {
+             "type" : "keyword"
+           },
+           "message_json.metaAttributes.SRCAPPL" : {
+             "type" : "keyword"
+           },
+           "message_json.metaAttributes.SVCNAME" : {
+             "type" : "keyword"
+           },
+           "message_json.metaAttributes.REPLY_TO" : {
+             "type" : "keyword"
+           },
+           "message_json.metaAttributes.CID" : {
+             "type" : "keyword"
+           },
+           "logtimestamp" : {
+             "enabled" : false
+           },
+           "message_json.logTS" : {
+             "enabled" : false
+           },
+           "message_json.sendTS" : {
+             "enabled" : false
+           },
+           "message_json.metaAttributes.CIF" : {
+             "enabled" : false
+           },
+           "message_json.metaAttributes.LLSENDTS" : {
+             "enabled" : false
+           },
+           "message_json.metaAttributes.NIB" : {
+             "enabled" : false
+           },
+           "message_json.metaAttributes.FLOW_START" : {
+             "enabled" : false
+           },
+           "message_json.metaAttributes.REB_PUTTIME" : {
+             "enabled" : false
+           }
+         }
+       }
+     },
+     "aliases" : { }
+}

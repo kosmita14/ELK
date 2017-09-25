@@ -1,0 +1,47 @@
+{
+  "order": 1000,
+  "template": "nib*",
+  "version": 50045,
+  "settings": {
+    "index.mapper.dynamic": true,
+    "index": {
+      "number_of_shards": "1",
+      "refresh_interval": "60s"
+    }
+  },
+  "mappings": {
+    "logs": {
+      "dynamic": true,
+      "numeric_detection": true,
+      "date_detection": false,
+      "dynamic_templates": [
+        {
+          "all_dates_to_keywords": {
+            "match_mapping_type": "date",
+            "mapping": {
+              "type": "keyword",
+              "index": false
+            }
+          }
+        },
+        {
+          "all_strings_to_keywords": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "user_id": {
+          "type": "keyword"
+        }
+      }
+    }
+  },
+  "aliases": {}
+}

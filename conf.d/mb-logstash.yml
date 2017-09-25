@@ -1,0 +1,58 @@
+input {
+  beats {
+    port => 5045
+  }
+}
+
+filter {
+
+  grok{
+    match => [
+       "message", "(?<logtimestamp>[^|]+)\|%{NOTSPACE:log_level}\|%{NOTSPACE:req_id}\|%{NOTSPACE:session_id}\|WebContainer : %{NUMBER:thread_name}\|(?<check_point>[^|]*)\|(?<user_id>[^|]*)\|(?<dev_id>[^|]*)\|(?<ip>[^|]*)\|(?<value1>[^|]*)\|(?<value2>[^|]*)\|appId: (?<app_id>[^ ]*) platform: %{NOTSPACE:platform} version: %{NOTSPACE:app_version}[\s]*%{GREEDYDATA}deviceInformation=DeviceInformation\([^,]*,,(?<os_version>[^,]*),(?<dev_vendor>[^,]*),(?<dev_model>[^,]*)%{GREEDYDATA:text}\)",
+       "message", "(?<logtimestamp>[^|]+)\|%{NOTSPACE:log_level}\|%{NOTSPACE:req_id}\|%{NOTSPACE:session_id}\|WebContainer : %{NUMBER:thread_name}\|(?<check_point>[^|]*)\|(?<user_id>[^|]*)\|(?<dev_id>[^|]*)\|(?<ip>[^|]*)\|(?<value1>[^|]*)\|(?<value2>[^|]*)\|appId: (?<app_id>[^ ]*) platform: %{NOTSPACE:platform} version: %{NOTSPACE:app_version}[\s]*%{GREEDYDATA:text}"
+    ]
+
+    remove_field => [ "message" ]
+  }
+    
+  date {
+     match => [ "[logtimestamp]", "YYYY-MM-dd HH:mm:ss:SSS"]
+     timezone => "Europe/Warsaw"
+     remove_field => [ "logtimestamp", "value1", "value2" ]
+  }
+    
+  if [dev_model] {  
+     aggregate {
+       task_id => "%{session_id}"
+       code => "map['device_model'] = event.get('dev_model'); map['device_vendor'] = event.get('dev_vendor'); map['os_version'] = event.get('os_version')"
+       map_action => "create"
+     }
+   }
+
+  if [check_point] == "END: LOGIN_AUTH" {
+     aggregate {
+       task_id => "%{session_id}"
+       code => "event.set('dev_model', map['device_model']); event.set('dev_vendor', map['device_vendor']); event.set('os_version', map['os_version'])"
+       map_action => "update"
+       end_of_task => true
+       timeout => 120
+       add_tag => [ "aggregated" ]
+     }
+  }
+   
+  if [dev_model] {
+    if "aggregated" not in [tags] {
+      drop {}
+    }
+  }
+   
+}
+
+output {
+    elasticsearch {
+      hosts => [ "localhost:9200" ]
+      index => "mb-%{+YYYY.MM.dd}"
+    }
+    stdout { codec => rubydebug }
+}
+
